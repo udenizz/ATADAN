@@ -1,0 +1,84 @@
+﻿@page "/contributeDataLabel"
+<h3>Yapay Zekaya Katkıda Bulun</h3>
+<div class="allinside">
+    <div class="container">
+        <div class="top-right">
+            <button class="photobutton" style="width:110px;height:40px;" @onclick="OnTakePhotoClicked">Fotoğraf Çek</button>
+        </div>
+        <div class="middle-center" style="margin-top:40px;">
+            <div>
+                @{
+                    if (isClickedTakephot == true) {
+                        <img id="image" width="250" height="250" src=@_photopath />
+                    }
+                    else {
+                        <img width="250" height="250" src="./images/blank.png" />
+                    }
+                }
+            </div>
+            <div style="margin:20px;padding:5px;">
+                <input list="bitki" name="browser" style="border-radius:20px;" id="browser" placeholder="Bitki Türü:">
+                <datalist id="bitki">
+                    <option value="Domates"></option>
+                    <option value="Biber"></option>
+                    <option value="Patates"></option>
+                </datalist>
+                <div>
+                    <input list="hastalık" name="browser" style="border-radius:20px;margin-top:15px;" id="browser" placeholder="Hastalık Tipi:">
+                    <datalist id="hastalık">
+                        <option value="Sarı yaprak kıvrılma hastalığı"></option>
+                        <option value="Geç yanıklık"></option>
+                        <option value="Erken Yanıklık"></option>
+                        <option value="Bakteri Lekelesi"></option>
+                    </datalist>
+                </div>
+
+            </div>
+        </div>
+        <div class="bottom-center" style="padding:12px;">
+            <button class="photobutton" style="width:110px;height:40px;" @onclick="AddPhotofromGallery">Galeriyi Aç</button>
+
+            <button class="photobutton" style="width:220px;height:40px;margin-top:12px;" @onclick="@onNextClick">Yapay Zekaya Katkıda Bulun</button>
+
+        </div>
+
+    </div>
+</div>
+@code {
+    private string _photopath;
+    private byte[] image;
+    private bool isClickedTakephot = false;
+    public async void OnTakePhotoClicked() {
+        var photo = await MediaPicker.CapturePhotoAsync(new MediaPickerOptions {
+                Title = "Take a photo"
+            });
+        var stream = await photo.OpenReadAsync();
+        var bytes = new byte[stream.Length];
+        await stream.ReadAsync(bytes, 0, (int)stream.Length);
+        var base64String = Convert.ToBase64String(bytes);
+        var imgSrc = "data:image/png;base64," + base64String;
+        _photopath = imgSrc;
+        isClickedTakephot = true;
+        StateHasChanged();
+    }
+
+    public async void AddPhotofromGallery() {
+        var result = await MediaPicker.PickPhotoAsync();
+        if (result != null) {
+            var stream = await result.OpenReadAsync();
+            var imageSource = ImageSource.FromStream(() => stream);
+
+            image = System.IO.File.ReadAllBytes(result.FullPath);
+            var base64String = Convert.ToBase64String(image);
+            _photopath = "data:image/png;base64," + base64String;
+
+            // Display the image in an Image control
+            //_photopath = imageSource.ToString();
+            isClickedTakephot = true;
+            StateHasChanged();
+        }
+    }
+    public void onNextClick() {
+        
+    }
+}

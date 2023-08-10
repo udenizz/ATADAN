@@ -1,0 +1,16 @@
+﻿<div class="alert alert-secondary mt-4">
+    <span class="oi oi-pencil me-2" aria-hidden="true"></span>
+    <strong>@Title</strong>
+
+    <span class="text-nowrap">
+        Lütfen,
+        <a target="_blank" class="font-weight-bold link-dark" href="https://www.atadan.net/">sitemize </a>
+    </span>
+    göz atın ve ATADAN'ın ne yaptığını öğrenin.
+</div>
+
+@code {
+    // Demonstrates how a parent component can supply parameters
+    [Parameter]
+    public string Title { get; set; }
+}

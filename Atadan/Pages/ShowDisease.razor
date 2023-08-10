@@ -1,0 +1,62 @@
+﻿
+@using Atadan.Data;
+@using Atadan.Services;
+@page "/showdisease"
+@inject NavigationManager navMng;
+
+<h3>Hastalık Sonucu</h3>
+<div class="allinside">
+    <div class="middle-center" style="display:flex;align-items:center;justify-content:center">
+        <div style="margin-top:-250px;">
+               <img id="image" width="250" height="250" src=@_photopath />
+        </div>
+    </div>
+    <div>
+        @if (res.diseaseName != null) {
+            <label style="margin-top:40px; margin-left:10px;">Hastalığınız %@res.correctRate olasılıkla @res.diseaseName</label>
+        }
+        @if(isHealty == false) {
+            <div class="loginbutton" style=" border-radius: 20px;margin-right: 15px;">
+                <button @onclick="ShowNaturalDieases">Doğal çözüm yolları</button>
+                <button @onclick="ShowChemicalSolutions">Kimyasal çözüm yolları</button>
+            </div>
+        }
+        else {
+            <div class="loginbutton" style=" border-radius: 20px;margin-right: 15px;">
+                <button @onclick="ShowNaturalDieases" disabled>Doğal çözüm yolları</button>
+                <button @onclick="ShowChemicalSolutions" disabled>Kimyasal çözüm yolları</button>
+            </div>
+        }
+
+    </div>
+</div>
+@code {
+
+    public AiResultModel res { get; set; }
+    public byte[] image { get; set; }
+    public string _photopath;
+    bool isHealty = false;
+
+    protected override void OnInitialized() {
+        image = AppService.Instance.mainImage;
+        res = AppService.Instance.aiResultModel;
+        if (res.diseaseName.Contains("Sağlıklı")) {
+            isHealty = true;
+        }
+        else {
+            isHealty = false;
+        }
+        var base64String = Convert.ToBase64String(image);
+        _photopath = "data:image/png;base64," + base64String;
+    }
+    public async void ShowNaturalDieases() {
+        var result = await AppService.Instance.SearchOnline(res.diseaseName);
+        AppService.Instance.searchResponse = result;
+        navMng.NavigateTo("/naturalsol");
+    }
+    public async void ShowChemicalSolutions() {
+        var result = await AppService.Instance.SearchOnlineChem(res.diseaseName);
+        AppService.Instance.searchResponse = result;
+        navMng.NavigateTo("/map");
+    }
+}
